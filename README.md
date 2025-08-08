@@ -220,64 +220,6 @@ upstageailab-cv-classification-cv_10/
 
 
 
-## 4. Modeling
-
-### Model Description
-
-본 프로젝트에서는 **Layoutlmv3, Convnext 계열 모델**을 주력으로 사용하여 문서 분류 성능을 극대화했습니다.
-
-#### 사용된 모델 아키텍처
-(여기에 사용한 모델 더 넣어주길 바람)
-- **ResNet-34**: 초기 베이스라인 모델로 사용
-- **vit_base_patch16_clip_224.laion2b_ft_in1k** : Vision Transformer (ViT) 기반의 contrastive learning으로 학습된 모델
-- **vit_large** : VIT 아키텍쳐의 기본모델
-- **ConvNeXtV2-Base**: 개선된 ConvNeXt 아키텍처의 기본 모델
-- **ConvNeXtV2-Large**: 개선된 ConvNeXt 아키텍처의 대용량 모델
-- **Swin transformer**: Shifted Window Attention기반의 VIT 아키텍처의 모델
-- **Layoutlmv3** : 텍스트, 레이아웃, 이미지 정보를 동시에 처리할 수 있는 모델
-
-#### 모델 선택 이유
-
-1. **높은 성능**: ImageNet에서 검증된 SOTA 성능
-2. **효율성**: 파라미터 대비 높은 성능 효율
-3. **전이학습 적합성**: 사전 훈련된 가중치를 활용한 빠른 학습
-4. **문서 이미지 특성**: 세밀한 텍스트와 구조 인식에 우수한 성능
-
-### Modeling Process
-
-#### 1. 모델링 아키텍처
-- Pytorch Lightning 기반으로 재사용 가능한 Module 구성
-- 384x384의 고해상도 입력
-- WandB를 통한 실험 기록
-
- #### 2.메트릭 시스템 구축
- - 전체 정확도를 뜻하는 F1 score
- - 모델별 학습 - **컬러/흑백 비율**: 컬러 이미지와 흑백으로 처리된 이미지가 혼재.
-  - **노이즈 정도** : 시각화시 특정 필터를 거쳐야하기에 정확한 수치를 파악할 수 없었으나 인스펙터를 통해 다수의 test 데이터를 직접 확인하여 강한 노이즈와 약한 노이즈가 걸린 이미지를 확인.
-  - **회전 정도** : 테스트 데이터에 약한 회전이 걸린 이미지와 강한 회전이 걸린 이미지들이 존재하며, 강한 회전의 경우, 회전시 생기는 가장 자리 손실이 생김을 확인.
-
-### Data Processing
-
-- **데이터 라벨링**
-  - Train 데이터는 `train.csv`의 `target` 컬럼을 기준으로 클래스 레이블을 부여.
-
-- **데이터 전처리**
-  - Train 이미지의 밝기 및 대비 보정: Test 데이터 분포(밝고 균일)에 맞도록 조정.
-  - 회전 및 왜곡 보정: 클래스별 비율 패턴과 회전 상태를 분석해 강한 회정 적용.
-  - 노이즈 대비: 약한 노이즈와 강한 노이즈 둘 다 적용하도록 데이터 증강 설계.
-  - 흑백 대비 : grey 증강 기법 적용.
-  - 마스킹 영역 고려: 클래스별 밝기/어두움 비율을 기반으로 증강 및 보정 전략 설계.
-  - 이외에도 데아터를 직접 확인하고 어떤 증강이 적용됬는지 파악후 다양한 데이터 증강 기법 적용.
-  - OCR을 적용하기 전 좋은 정보 추출을 위해 test 데이터 deskew 및 re-orientation, flip-recover
-  - 데이터의 정보를 최대한 활용하기 위해 OCR 적용
- 
-- **데이터 전처리 버전**
-  성능 향상을 위해 모델에 따른 적용한 전처리가 다름
-  1. augrapy와 albumentation을 통한 강한 augumentation을 확률적으로 적용
-  2. resize_and_crops, jitters, colors, rotators 등으로 albumentation의 분류를 나눈 다음, radom select를 통해 100개의 경우의 수를 만들고, 모델의 에포크마다 다르게 적용
-  3. test 데이터 deskew 작업 후, 이미 회전과 반전에 대해 원래 이미지로 거의 복구했으니 약한 회전과 훼손이나 노이즈 같은 augmentation을 적용 
-
-
 
 ## 4. Modeling
 
